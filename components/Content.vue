@@ -1,6 +1,6 @@
 <template>
-  <div>
-    Note title
+  <div class="content">
+    Content
   </div>
 </template>
 
@@ -17,5 +17,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+.content {
+  flex-grow: 1
+}
 </style>
