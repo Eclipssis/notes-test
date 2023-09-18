@@ -3,21 +3,29 @@ import { useIndexStore } from '~/stores/index'
 
 // TODO move type to folder
 export interface Note {
+  id?: number,
   title: string,
   body: string,
+  rawText: string,
   createdAt: Date,
 }
 
 interface State {
-  notes: Note[]
+  notes: Note[],
+  selectedNote: Note | null
 }
 
 export const useNotesStore = defineStore('notes', {
   state: (): State => ({ 
     notes: [],
+    selectedNote: null,
   }),
 
   actions: {
+    selectNote(note: Note): void {
+      this.selectedNote = note
+    },
+
     getAll(): Promise<Note[]> {
       
       const indexStore = useIndexStore()
@@ -28,8 +36,9 @@ export const useNotesStore = defineStore('notes', {
           let notesStore = transaction.objectStore("notes")
           const noteRecords = notesStore.getAll()
 
-          noteRecords.onsuccess = function() {
+          noteRecords.onsuccess = () => {
             resolve(noteRecords.result)
+            this.notes.push(...noteRecords.result)
           }
 
           noteRecords.onerror = function() {
@@ -41,12 +50,25 @@ export const useNotesStore = defineStore('notes', {
       })
     },
 
-    createNote (note: Note) {
+    createNote (note: Note): void {
       const indexStore = useIndexStore()
       if (indexStore && indexStore.db) {
         let transaction = indexStore.db.transaction("notes", "readwrite")
         let notes = transaction.objectStore("notes")
         notes.add(note)
+        this.notes.push(note)
+      }
+    },
+
+    updateNote(note: Note): void {
+      const indexStore = useIndexStore()
+      if (indexStore && indexStore.db) {
+        let transaction = indexStore.db.transaction("notes", "readwrite")
+        let notes = transaction.objectStore("notes")
+        notes.put(note)
+        const index = this.notes.findIndex(item => item.id === note.id)
+        this.notes.splice(index, 1, note)
+        this.selectedNote = note
       }
     }
   },

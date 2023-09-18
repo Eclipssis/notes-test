@@ -2,13 +2,15 @@
   <div class="sidebar">
     
     <div class="sidebar__panel">
-      <span @click="onAddNote">
+      <span @click="onAddNote" class="cursor-pointer">
         <font-awesome-icon icon="plus" class="gray-icon"/>
       </span>
-      <font-awesome-icon icon="trash" class="gray-icon"/>
+      <span class="cursor-pointer">
+        <font-awesome-icon icon="trash" class="gray-icon"/>
+      </span>
     </div>
 
-    <NotesList :notes="notes"></NotesList>
+    <NotesList :notes="notesList"></NotesList>
   </div>
 </template>
 
@@ -19,7 +21,8 @@ import { useNotesStore } from '~/stores/notes'
 
 const newNote: Note = {
   title: 'New Note',
-  body: 'No additional text',
+  body: '',
+  rawText: '# New Note',
   createdAt: new Date(), // TODO check is correct time
 }
 
@@ -27,14 +30,24 @@ export default defineComponent({
   async setup () {
     const noteStore = useNotesStore()
 
-    const notes = await noteStore.getAll()
+    let notesList: Ref<Note[]> = ref([])
+    notesList.value = await noteStore.getAll()
 
     const onAddNote = () => {
-      noteStore.createNote(newNote)
+      const lastNote = notesList.value[notesList.value.length - 1]
+      const id =  lastNote && lastNote.id ? lastNote.id + 1 : 1
+      noteStore.createNote({
+        id,
+        ...newNote
+      })
     }
 
+    noteStore.$subscribe((mutation, state) => {
+      notesList.value = [...state.notes]
+    })
+
     return {
-      notes,
+      notesList,
       onAddNote
     }
   }

@@ -2,8 +2,6 @@ import { useIndexStore } from '~/stores/index'
 
 export default defineNuxtPlugin(async () => {
   if (process.client) {
-    console.log('Start DB');
-    
     let openRequest = window.indexedDB.open("notesDB", 1);
 
     openRequest.onupgradeneeded  = function() {
@@ -15,7 +13,6 @@ export default defineNuxtPlugin(async () => {
 
     const initDB = new Promise<void>((resolve) => {
       openRequest.onsuccess = function() {
-        console.log('in process');
         let db = openRequest.result;
         const store = useIndexStore()
         store.setIndexDb(db)
@@ -24,7 +21,5 @@ export default defineNuxtPlugin(async () => {
     }) 
 
     await initDB
-    console.log('finish');
-    
   }
 })
