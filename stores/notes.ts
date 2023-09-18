@@ -54,9 +54,11 @@ export const useNotesStore = defineStore('notes', {
       const indexStore = useIndexStore()
       if (indexStore && indexStore.db) {
         let transaction = indexStore.db.transaction("notes", "readwrite")
-        let notes = transaction.objectStore("notes")
-        notes.add(note)
-        this.notes.push(note)
+        let notesRequset = transaction.objectStore("notes").add(note)
+
+        notesRequset.onsuccess = ()=> {
+          this.notes.push(note)
+        }
       }
     },
 
@@ -64,11 +66,30 @@ export const useNotesStore = defineStore('notes', {
       const indexStore = useIndexStore()
       if (indexStore && indexStore.db) {
         let transaction = indexStore.db.transaction("notes", "readwrite")
-        let notes = transaction.objectStore("notes")
-        notes.put(note)
-        const index = this.notes.findIndex(item => item.id === note.id)
-        this.notes.splice(index, 1, note)
-        this.selectedNote = note
+        let notesRequset = transaction.objectStore("notes").put(note)
+        notesRequset.onsuccess = ()=> {
+          const index = this.notes.findIndex(item => item.id === note.id)
+          this.notes.splice(index, 1, note)
+          this.selectedNote = note
+        }
+      }
+    },
+
+    deleteNote() {
+      const indexStore = useIndexStore()
+
+      if (this.selectedNote && this.selectedNote.id) {
+        if (indexStore && indexStore.db) {
+          const notesRequset = indexStore.db.transaction('notes', 'readwrite')
+            .objectStore('notes')
+            .delete(this.selectedNote?.id)
+
+          notesRequset.onsuccess = ()=> {
+            const index = this.notes.findIndex(item => item.id === this.selectedNote?.id)
+            this.notes.splice(index, 1)
+          }
+        }
+        
       }
     }
   },

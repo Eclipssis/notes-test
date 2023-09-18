@@ -5,7 +5,7 @@
       <span @click="onAddNote" class="cursor-pointer">
         <font-awesome-icon icon="plus" class="gray-icon"/>
       </span>
-      <span class="cursor-pointer">
+      <span @click="onDeleteNote" class="cursor-pointer" :class="{'not-allowed': !noteStore.selectedNote}">
         <font-awesome-icon icon="trash" class="gray-icon"/>
       </span>
     </div>
@@ -42,13 +42,23 @@ export default defineComponent({
       })
     }
 
+    const onDeleteNote = () => {
+      const confirm = window.confirm('Are you sure to delete this note ?')
+      console.log('confirm', confirm)
+      if (confirm) {
+        noteStore.deleteNote()
+      }
+    }
+
     noteStore.$subscribe((mutation, state) => {
       notesList.value = [...state.notes]
     })
 
     return {
+      noteStore,
       notesList,
-      onAddNote
+      onAddNote,
+      onDeleteNote
     }
   }
 })
@@ -69,5 +79,10 @@ export default defineComponent({
 
 .gray-icon {
   color: #636363;
+}
+
+.not-allowed {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>
