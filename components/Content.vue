@@ -51,7 +51,6 @@ export default defineComponent({
     const noteStore = useNotesStore()
     const { formatTime } = useDate()
 
-    // let searchText: Ref<string> = ref('')
     let isEdit: Ref<boolean> = ref(false)
 
     function stripHtml(html: string): string {
@@ -106,8 +105,13 @@ export default defineComponent({
       }
     })
 
+    noteStore.$subscribe((mutation, state) => {
+      if (!state.selectedNote) {
+        isEdit.value = false
+      }
+    })
+
     return {
-      // searchText,
       isEdit,
       onUpdate,
       onSearch,
