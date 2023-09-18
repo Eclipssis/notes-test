@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useIndexStore } from '~/stores/index'
 
-// TODO move type to folder
+// TODO import Note interface from types folder
 export interface Note {
   id?: number,
   title: string,
@@ -39,7 +39,7 @@ export const useNotesStore = defineStore('notes', {
       this.searchText = text
     },
 
-    selectNote(note: Note): void {
+    selectNote(note: Note | null): void {
       this.selectedNote = note
     },
 
@@ -65,6 +65,8 @@ export const useNotesStore = defineStore('notes', {
 
         notesRequset.onsuccess = () => {
           this.notes.push(note)
+          // TODO on mobile make sence to select new created notes (for my opinion)
+          // this.selectNote(note)
         }
       }
     },
@@ -94,6 +96,7 @@ export const useNotesStore = defineStore('notes', {
           notesRequset.onsuccess = () => {
             const index = this.notes.findIndex(item => item.id === this.selectedNote?.id)
             this.notes.splice(index, 1)
+            this.selectNote(null)
           }
         }
         

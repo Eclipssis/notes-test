@@ -2,7 +2,7 @@
   <div class="content">
 
     <div class="content__panel">
-      <div v-if="noteStore.selectedNote">
+      <div v-if="noteStore.selectedNote" class="content__controls">
         <span v-if="!isEdit" @click="isEdit = !isEdit" class="cursor-pointer">
           <font-awesome-icon icon="pen-to-square" />
         </span>
@@ -124,18 +124,27 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  padding: 15px 15px 15px 15px;
+  padding: 0 15px 15px 15px;
 }
 
 .content__panel {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
+}
+
+.content__controls {
+  position: absolute;
+  top: 15px;
+  right: 15px
 }
 
 .content__body {
   height: 100%;
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .content__empty {
@@ -148,6 +157,7 @@ export default defineComponent({
   width: 100%;
   border: none;
   resize: none;
+  flex: 1 1 100%
 }
 
 .content__date {
@@ -167,7 +177,7 @@ export default defineComponent({
 
 .search {
   position: relative;
-  max-width: 200px;
+  width: 100%;
   margin-left: auto;
 }
 
@@ -185,5 +195,28 @@ export default defineComponent({
   border-radius: 5px;
   height: 30px;
   padding-left: 25px;
+  width: 100%;
+}
+
+@media screen and (min-width: 769px) {
+  .content {
+    padding-top: 15px;
+  }
+
+  .content__body {
+    flex-direction: row;
+  }
+
+  .content__panel {
+    margin-bottom: 50px;
+  }
+
+  .content__controls {
+    position: static;
+  }
+
+  .search {
+    max-width: 200px;
+  }
 }
 </style>

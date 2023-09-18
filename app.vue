@@ -10,6 +10,7 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -18,10 +19,17 @@ body {
 
 .wraper {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+@media screen and (min-width: 769px) {
+  .wraper {
+    flex-direction: row;
+  }
 }
 </style>

@@ -27,19 +27,15 @@ const formatedTime = computed(() => {
 <style scoped>
 
 .note {
-  margin-bottom: 10px;
   padding: 10px;
   cursor: pointer;
 }
 
 .note.selected {
-  background: #d7d551;
+  background: #fed7aa;
   border-radius: 6px;
 }
 
-.note + .note {
-  border-top: 1px solid #c2c2c2;
-}
 .note__body {
   display: flex;
 }
