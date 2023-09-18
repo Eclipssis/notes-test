@@ -1,22 +1,22 @@
 <template>
   <div class="note">
-    <h3>{{ note.title }}</h3>
+    <h3>{{ note.title.slice(0, maxNoteTitleLength) }}</h3>
     <div class="note__body">
       <span class="note__time">{{ formatedTime }}</span>
-      <span class="note__body">{{ note.body }}</span>
+      <span class="note__body">{{ note.body.slice(0, maxNoteBodyLength) }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Note } from '~/stores/notes'
+import { maxNoteTitleLength, maxNoteBodyLength } from "~/assets/js/constants"
 
 interface Props {
   note: Note
 }
 
 const props = defineProps<Props>()
-
 const { formatTime } = useDate()
 
 const formatedTime = computed(() => {

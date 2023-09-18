@@ -14,7 +14,7 @@
     <!-- TODO: may be better to use js checking for the render notes. To not duplicate notes list twice -->
     <select class="sidebar__mobile-notes" @change="onChangeNote">
       <option v-for="note in mobileNotesList" :key="note.id" :value="note.id">
-        {{ note.title }}
+        {{ note.title.slice(0, maxNoteTitleLength) }}
       </option>
     </select>
   </div>
@@ -24,6 +24,7 @@
 import { defineComponent } from 'vue'
 import { Note } from '~/stores/notes'
 import { useNotesStore } from '~/stores/notes'
+import { maxNoteTitleLength } from "~/assets/js/constants"
 
 const newNote: Note = {
   title: 'New Note',
@@ -34,6 +35,7 @@ const newNote: Note = {
 
 export default defineComponent({
   async setup () {
+    
     const noteStore = useNotesStore()
 
     await noteStore.getAll()
@@ -75,7 +77,8 @@ export default defineComponent({
       noteStore,
       onAddNote,
       onDeleteNote,
-      onChangeNote
+      onChangeNote,
+      maxNoteTitleLength
     }
   }
 })
@@ -83,6 +86,7 @@ export default defineComponent({
 
 <style scoped>
 .sidebar {
+  width: 100%;
   min-width: 200px;
   border-right: 1px solid #c2c2c2;
   padding: 15px
@@ -114,7 +118,7 @@ export default defineComponent({
 
 @media screen and (min-width: 769px) {
   .sidebar {
-    min-width: 300px;
+    max-width: 300px;
   }
   .sidebar__mobile-notes {
     display: none;
