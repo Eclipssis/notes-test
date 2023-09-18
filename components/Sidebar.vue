@@ -10,7 +10,7 @@
       </span>
     </div>
 
-    <NotesList :notes="notesList"></NotesList>
+    <NotesList :notes="noteStore.filteredNotes"></NotesList>
   </div>
 </template>
 
@@ -30,11 +30,10 @@ export default defineComponent({
   async setup () {
     const noteStore = useNotesStore()
 
-    let notesList: Ref<Note[]> = ref([])
-    notesList.value = await noteStore.getAll()
+    await noteStore.getAll()
 
     const onAddNote = () => {
-      const lastNote = notesList.value[notesList.value.length - 1]
+      const lastNote = noteStore.notes[noteStore.notes.length - 1]
       const id =  lastNote && lastNote.id ? lastNote.id + 1 : 1
       noteStore.createNote({
         id,
@@ -44,19 +43,13 @@ export default defineComponent({
 
     const onDeleteNote = () => {
       const confirm = window.confirm('Are you sure to delete this note ?')
-      console.log('confirm', confirm)
       if (confirm) {
         noteStore.deleteNote()
       }
     }
 
-    noteStore.$subscribe((mutation, state) => {
-      notesList.value = [...state.notes]
-    })
-
     return {
       noteStore,
-      notesList,
       onAddNote,
       onDeleteNote
     }
@@ -66,9 +59,15 @@ export default defineComponent({
 
 <style scoped>
 .sidebar {
-  min-width: 300px;
+  min-width: 200px;
   border-right: 1px solid #c2c2c2;
   padding: 15px
+}
+
+@media screen and (min-width: 769px) {
+  .sidebar {
+    min-width: 300px;
+  }
 }
 
 .sidebar__panel {

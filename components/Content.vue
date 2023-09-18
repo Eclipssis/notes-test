@@ -1,29 +1,42 @@
 <template>
   <div class="content">
 
-    <template v-if="noteStore.selectedNote">
-      <span v-if="!isEdit" @click="isEdit = !isEdit" class="cursor-pointer">
-        <font-awesome-icon icon="pen-to-square" />
-      </span>
+    <div class="content__panel">
+      <div v-if="noteStore.selectedNote">
+        <span v-if="!isEdit" @click="isEdit = !isEdit" class="cursor-pointer">
+          <font-awesome-icon icon="pen-to-square" />
+        </span>
 
-      <button v-if="isEdit" @click="isEdit = !isEdit" class="edit-button">
-        M
-        <font-awesome-icon icon="arrow-down" />
-      </button>
-    </template>
+        <button v-if="isEdit" @click="isEdit = !isEdit" class="edit-button">
+          M
+          <font-awesome-icon icon="arrow-down" />
+        </button>
+      </div>
+
+      <div class="search">
+        <span class="search__icon">
+          <font-awesome-icon icon="magnifying-glass" />
+        </span>
+        <input :value="noteStore.searchText" @input="onSearch" placeholder="Search" class="search__input">
+      </div>
+    </div>
+
+    <div v-if="noteStore.selectedNote" class="content__date">
+      {{ formatNoteDate }}
+    </div>
     
-    <div v-if="isEdit">
+    <div v-if="isEdit" class="content__body">
       <textarea 
         :value="noteStore.selectedNote?.rawText" 
         @input="onUpdate" 
         class="content__edit"
       ></textarea>
     </div>
-
+    
     <div v-if="!isEdit && noteStore.selectedNote" v-html="compiledMarkdown"></div>
 
-    <div v-if="!noteStore.selectedNote">
-      Please select note
+    <div v-if="!noteStore.selectedNote" class="content__empty">
+      Please select the note
     </div>
   </div>
 </template>
@@ -33,11 +46,12 @@ import { defineComponent } from 'vue'
 import { marked } from "marked";
 import { useNotesStore } from '~/stores/notes'
 
-
 export default defineComponent({
   setup () {
     const noteStore = useNotesStore()
-    let input: Ref<string | undefined> = ref(noteStore.selectedNote?.rawText)
+    const { formatTime } = useDate()
+
+    // let searchText: Ref<string> = ref('')
     let isEdit: Ref<boolean> = ref(false)
 
     function stripHtml(html: string): string {
@@ -47,8 +61,9 @@ export default defineComponent({
     }
 
     const onUpdate = (event: Event) => {
-      if (event.target) {
-        const rawText = event.target.value
+      const target = event.target as HTMLTextAreaElement
+      if (target) {
+        const rawText = target.value
         const title = rawText.split('\n')[0]
         let data = rawText.split('\n')
         data.shift()
@@ -61,9 +76,29 @@ export default defineComponent({
           rawText,
           createdAt: new Date()
         }
+
         noteStore.updateNote(note)
       }
     }
+
+    const onSearch = (event: Event) => {
+      const target = event.target as HTMLTextAreaElement
+      if (target) {
+        noteStore.setSearchText(target.value)
+      }
+    }
+
+    const formatNoteDate = computed(() => {
+      if (noteStore.selectedNote?.rawText) {
+        const day = noteStore.selectedNote.createdAt.getDate()
+        const month = noteStore.selectedNote.createdAt.getMonth()
+        const year = noteStore.selectedNote.createdAt.getFullYear()
+
+        const time = formatTime(noteStore.selectedNote.createdAt)
+
+        return `${day}/${month}/${year}, ${time}`
+      }
+    })
 
     const compiledMarkdown = computed(() => {
       if (noteStore.selectedNote?.rawText) {
@@ -72,11 +107,13 @@ export default defineComponent({
     })
 
     return {
-      input,
+      // searchText,
       isEdit,
       onUpdate,
+      onSearch,
       compiledMarkdown,
-      noteStore
+      noteStore,
+      formatNoteDate
     }
   }
 })
@@ -84,14 +121,38 @@ export default defineComponent({
 
 <style scoped>
 .content {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
-  padding: 55px 15px 15px 15px;
+  padding: 15px 15px 15px 15px;
+}
+
+.content__panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.content__body {
+  height: 100%;
+}
+
+.content__empty {
+  text-align: center;
+  font-size: 22px;
 }
 
 .content__edit {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   border: none;
+  resize: none;
+}
+
+.content__date {
+  text-align: center;
+  margin-bottom: 15px;
 }
 
 .edit-button {
@@ -102,5 +163,27 @@ export default defineComponent({
   padding: 2px 5px;
   font-size: 10px;
   cursor: pointer;
+}
+
+.search {
+  position: relative;
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translate(0, -50%);
+  color: #5f5c5c;
+  font-size: 13px;
+}
+
+.search__input {
+  border: 1px solid #5f5c5c;
+  border-radius: 5px;
+  height: 30px;
+  padding-left: 25px;
 }
 </style>

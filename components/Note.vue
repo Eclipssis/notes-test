@@ -17,8 +17,10 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { formatTime } = useDate()
+
 const formatedTime = computed(() => {
-  return `${props.note.createdAt.getHours()}:${props.note.createdAt.getMinutes()}`
+  return formatTime(props.note.createdAt, { hours: true, minutes: true })
 })
 </script>
 
